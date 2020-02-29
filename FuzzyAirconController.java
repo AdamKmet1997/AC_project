@@ -1,3 +1,4 @@
+
 //import java.util.*;
 //import javax.swing.*;
 import processing.core.*;
@@ -73,30 +74,52 @@ public class FuzzyAirconController extends PApplet{
 
         inputVariable1 = new InputVariable();
         inputVariable1.setEnabled(true);
-        inputVariable1.setName("room");
+        inputVariable1.setName("temperature");
+        inputVariable1.setRange(-10.00, 40.00);//added adam
 
         // TODO
         // Set the range and terms for the room temperature input
-
+        //added adam
+        inputVariable1.addTerm(new Trapezoid("toocold", -10, -10, 0, 5));
+        inputVariable1.addTerm(new Trapezoid("cold", 0, 5, 10, 15));
+        inputVariable1.addTerm(new Trapezoid("warm", 10, 15, 20, 25));
+        inputVariable1.addTerm(new Trapezoid("hot", 20, 25, 30, 35));
+        inputVariable1.addTerm(new Trapezoid("toohot", 30, 35, 40, 40));
         engine.addInputVariable(inputVariable1);
 
         inputVariable2 = new InputVariable();
         inputVariable2.setEnabled(true);
         inputVariable2.setName("target");
-
+        inputVariable2.setRange(15, 35);
+        
         // TODO
         // Set the range and terms for the target temperature input
+        inputVariable2.setRange(0.00, 100.00);
+        // Add each term for the Linguistic variable
+        inputVariable2.addTerm(new Trapezoid("small", 0, 0, 30, 60));
+		inputVariable2.addTerm(new Trapezoid("large", 40, 60, 100, 100));
+        // Add the variable to the fuzzy engine
+        engine.addInputVariable(inputVariable2);
+
 
         engine.addInputVariable(inputVariable2);
 
         outputVariable = new OutputVariable();
         outputVariable.setEnabled(true);
         outputVariable.setName("command");
+        outputVariable.setRange(-1.000, 1.000);
+        // How should the rules be accumulated
         outputVariable.fuzzyOutput().setAccumulation(new Maximum());
+        // How will the output be Defuzzified?
         outputVariable.setDefuzzifier(new Centroid(200));
         outputVariable.setDefaultValue(0.000);
         outputVariable.setLockValidOutput(false);
         outputVariable.setLockOutputRange(false);
+        outputVariable.addTerm(new Trapezoid("low", 0, 0, 20, 40));
+        outputVariable.addTerm(new Triangle("normal", 20, 50, 80));
+        outputVariable.addTerm(new Trapezoid("high", 60, 80, 100, 100));
+        // Add the variable to the fuzzy engine
+        engine.addOutputVariable(outputVariable);
 
         // TODO
         // Set the range and terms for the command output
@@ -104,17 +127,23 @@ public class FuzzyAirconController extends PApplet{
 
         engine.addOutputVariable(outputVariable);
 
+
+
+
+        // Setup the inference rules
         ruleBlock = new RuleBlock();
         ruleBlock.setEnabled(true);
-        ruleBlock.setName("");
+        ruleBlock.setName("Rule Block");
+        // Set up fuzzy functions for AND, OR and NOT
         ruleBlock.setConjunction(new Minimum());
         ruleBlock.setDisjunction(new Maximum());
         ruleBlock.setActivation(new Minimum());
+        // Add the rules as follows
+        ruleBlock.addRule(Rule.parse("if (temperature is toocold) then command is high", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is toohot) then command is normal", engine));
+        // TODO - Add the rest of the rules - see lab sheet
 
-        // TODO
-        // Add rules to the rule block
-
-
+        // Add the rule block to the fuzzy engine
         engine.addRuleBlock(ruleBlock);
     }
     public void setup(){
@@ -272,7 +301,7 @@ public class FuzzyAirconController extends PApplet{
 
             // TODO: uncomment the call to fuzzyACEvaluate below
             // Run the fuzzy controller on our inputs and get an output
-            //acCommand = fuzzyACEvaluate(roomTemp, targetTemp);
+            acCommand = fuzzyACEvaluate(roomTemp, targetTemp);
 
             // Apply the pump action to the current level
             // new roomTemp will be affected by the delta (room - outside) and the AC fuzzy output
