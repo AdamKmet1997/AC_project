@@ -82,11 +82,11 @@ public class FuzzyAirconController extends PApplet{
         // TODO
         // Set the range and terms for the room temperature input
         //added adam
-        inputVariable1.addTerm(new Trapezoid("toocold", 0, 2.5, 4, 5));
-        inputVariable1.addTerm(new Trapezoid("cold", 0, 5, 10, 15));
-        inputVariable1.addTerm(new Trapezoid("warm", 10, 15, 20, 25));
-        inputVariable1.addTerm(new Trapezoid("hot", 20, 25, 30, 35));
-        inputVariable1.addTerm(new Trapezoid("toohot", 30, 35, 40, 40));
+        inputVariable1.addTerm(new Triangle("toocold",0, 5, 7.5));
+        inputVariable1.addTerm(new Triangle("cold",7.5 , 12.5, 15));
+        inputVariable1.addTerm(new Triangle("warm",15, 20, 22.5 ));
+        inputVariable1.addTerm(new Triangle("hot", 22.5, 27.5, 30));
+        inputVariable1.addTerm(new Triangle("toohot", 30, 35, 40));
         engine.addInputVariable(inputVariable1);
 
         inputVariable2 = new InputVariable();
@@ -98,9 +98,11 @@ public class FuzzyAirconController extends PApplet{
         // Set the range and terms for the target temperature input
         inputVariable2.setRange(0, 40);
         // Add each term for the Linguistic variable
-        inputVariable2.addTerm(new Trapezoid("small", 0, 5, 10 ,15));
-        inputVariable2.addTerm(new Trapezoid("medium", 10, 15, 20 ,25));
-		inputVariable2.addTerm(new Trapezoid("large", 20, 25, 30, 40));
+        inputVariable2.addTerm(new Triangle("toosmall", 0, 5, 7.5));//i want toocolder 
+        inputVariable2.addTerm(new Triangle("small", 7.5 , 12.5, 15));//i want colder 
+        inputVariable2.addTerm(new Triangle("medium",15, 20, 22.5 ));//i want normal
+        inputVariable2.addTerm(new Triangle("large",22.5, 27.5, 30));//i want hot
+        inputVariable2.addTerm(new Triangle("toolarge",30, 35, 40));//i want toohot
         // Add the variable to the fuzzy engine
         engine.addInputVariable(inputVariable2);
 
@@ -118,9 +120,13 @@ public class FuzzyAirconController extends PApplet{
         outputVariable.setDefaultValue(0.000);
         outputVariable.setLockValidOutput(false);
         outputVariable.setLockOutputRange(false);
-        outputVariable.addTerm(new Trapezoid("low", -10, -10,-7.5, -2.5));
-        outputVariable.addTerm(new Trapezoid("normal", -5, -2.5, 2.5, 5));
-        outputVariable.addTerm(new Trapezoid("high", 2.5, 7.5, 10, 10));
+        //what should the ac do
+        outputVariable.addTerm(new Triangle("toolow",-10, -8, -6));
+        outputVariable.addTerm(new Triangle("low",-6, -4, -2));
+        outputVariable.addTerm(new Triangle("normal",-2, 0 ,2 ));
+        outputVariable.addTerm(new Triangle("high",2,4, 6));
+        outputVariable.addTerm(new Triangle("toohigh",6, 8, 10));
+
         // Add the variable to the fuzzy engine
         engine.addOutputVariable(outputVariable);
 
@@ -142,11 +148,11 @@ public class FuzzyAirconController extends PApplet{
         ruleBlock.setDisjunction(new Maximum());
         ruleBlock.setActivation(new Minimum());
         // Add the rules as follows
-        ruleBlock.addRule(Rule.parse("if (temperature is toocold and target is large) then command is high", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is  )and( target is ) then command is ", engine));
         //ruleBlock.addRule(Rule.parse("if (temperature is toocold) then command is normal", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is toohot and target is small) then command is low", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is warm and target is medium) then command is low", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is hot and target is large ) then command is high", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is ) and (target is ) then command is ", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is  )and( target is ) then command is ", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is  )and( target is  ) then command is ", engine));
 
         // TODO - Add the rest of the rules - see lab sheet
 
