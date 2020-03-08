@@ -83,8 +83,8 @@ public class FuzzyAirconController extends PApplet{
         // Set the range and terms for the room temperature input
         //added adam
         inputVariable1.addTerm(new Triangle("toocold",0, 0, 10));
-        inputVariable1.addTerm(new Triangle("cold",6, 15, 20));
-        inputVariable1.addTerm(new Triangle("warm",13, 20, 30 ));
+        inputVariable1.addTerm(new Triangle("cold",5, 10, 18));
+        inputVariable1.addTerm(new Triangle("warm",15, 20, 25 ));
         inputVariable1.addTerm(new Triangle("hot", 20, 30, 35));
         inputVariable1.addTerm(new Triangle("toohot", 30, 40,40));
         engine.addInputVariable(inputVariable1);
@@ -98,9 +98,11 @@ public class FuzzyAirconController extends PApplet{
         // Set the range and terms for the target temperature input
         inputVariable2.setRange(0, 40);
         // Add each term for the Linguistic variable
-        inputVariable2.addTerm(new Triangle("low", 0 , 0, 15));//i want colder 
-        inputVariable2.addTerm(new Triangle("normal",10, 20 ,30 ));//i want normal
-        inputVariable2.addTerm(new Triangle("high", 20, 40,40));//i want hot
+        inputVariable2.addTerm(new Triangle("vlow", 0 , 5, 10));
+        inputVariable2.addTerm(new Trapezoid("low", 5 ,10 , 12.5, 17.5));//i want colder 
+        inputVariable2.addTerm(new Trapezoid("normal",12.5, 17.5 ,22.5,25 ));//i want normal
+        inputVariable2.addTerm(new Trapezoid("high", 22.5, 25, 30,35));
+        inputVariable2.addTerm(new Trapezoid("vhigh", 30 , 35, 37.5,40));//i want hot
         // Add the variable to the fuzzy engine
         engine.addInputVariable(inputVariable2);
 
@@ -119,11 +121,11 @@ public class FuzzyAirconController extends PApplet{
         outputVariable.setLockValidOutput(false);
         outputVariable.setLockOutputRange(false);
         //what should the ac do
-       // outputVariable.addTerm(new Triangle("toolow",-10, -8, -6));
-        outputVariable.addTerm(new Trapezoid("low",-10,-10, -7.5, 0));
-        outputVariable.addTerm(new Triangle("normal",-1, 0 ,1));
-        outputVariable.addTerm(new Trapezoid("high",0 ,7.5, 10,10));
-        //outputVariable.addTerm(new Triangle("toohigh",6, 8, 10));
+        outputVariable.addTerm(new Trapezoid("vlow",-10, -8.5,-6.5, -4.5));
+        outputVariable.addTerm(new Trapezoid("low",-6.5, -4.5, -2,0));
+        outputVariable.addTerm(new Triangle("normal",-1 , 0 , 1));
+        outputVariable.addTerm(new Trapezoid("high", 0 , 2 , 4.5, 6.5));
+        outputVariable.addTerm(new Trapezoid("vhigh",4.5, 6.5, 8.5, 10));
 
         // Add the variable to the fuzzy engine
         engine.addOutputVariable(outputVariable);
@@ -147,21 +149,44 @@ public class FuzzyAirconController extends PApplet{
         ruleBlock.setActivation(new Minimum());
         // Add the rules as follows
 
-        ruleBlock.addRule(Rule.parse("if (temperature is toocold) and (target is high) then command is high", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is toocold) and (target is normal) then command is high", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is toocold) and (target is low) then command is normal", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is low) then command is low", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is normal) then command is high", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is high) then command is high", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is warm) and (target is low) then command is low", engine));
+        //low end ( 0 to 18) 
         ruleBlock.addRule(Rule.parse("if (temperature is warm) and (target is normal) then command is normal", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is warm) and (target is low) then command is low", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is normal) then command is vhigh", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is low) then command is normal", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is vlow) then command is vlow", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is toocold) and (target is vlow) then command is normal", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is toocold) and (target is low) then command is high", engine));
+        //high end (19 to 40)#
         ruleBlock.addRule(Rule.parse("if (temperature is warm) and (target is high) then command is high", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is low) then command is low", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is normal) then command is normal", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is high) then command is high", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is low) then command is low", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is normal) then command is vlow", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is high) then command is normal", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is vhigh) then command is vhigh", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is vhigh) then command is normal", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is high) then command is low", engine));
         ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is normal) then command is low", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is high) then command is normal", engine));
+        
+        ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is vhigh) then command is vhigh", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is low) then command is vlow", engine));
+
+
+        
+
+        // ruleBlock.addRule(Rule.parse("if (temperature is toocold) and (target is high) then command is high", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is toocold) and (target is normal) then command is high", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is toocold) and (target is low) then command is normal", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is low) then command is low", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is normal) then command is high", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is high) then command is high", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is warm) and (target is low) then command is low", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is warm) and (target is normal) then command is normal", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is warm) and (target is high) then command is high", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is low) then command is low", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is normal) then command is normal", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is high) then command is high", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is low) then command is low", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is normal) then command is low", engine));
+        // ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is high) then command is normal", engine));
        
         // TODO - Add the rest of the rules - see lab sheet
 
