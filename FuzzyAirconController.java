@@ -150,8 +150,8 @@ public class FuzzyAirconController extends PApplet{
         // Add the rules as follows
 
         //low end ( 0 to 18) 
-        ruleBlock.addRule(Rule.parse("if (temperature is warm) and (target is normal) then command is normal", engine));
         ruleBlock.addRule(Rule.parse("if (temperature is warm) and (target is low) then command is low", engine));
+        ruleBlock.addRule(Rule.parse("if (temperature is warm) and (target is normal) then command is normal", engine));
         ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is normal) then command is vhigh", engine));
         ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is low) then command is normal", engine));
         ruleBlock.addRule(Rule.parse("if (temperature is cold) and (target is vlow) then command is vlow", engine));
@@ -162,7 +162,6 @@ public class FuzzyAirconController extends PApplet{
         ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is normal) then command is vlow", engine));
         ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is high) then command is normal", engine));
         ruleBlock.addRule(Rule.parse("if (temperature is hot) and (target is vhigh) then command is vhigh", engine));
-        ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is vhigh) then command is normal", engine));
         ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is high) then command is low", engine));
         ruleBlock.addRule(Rule.parse("if (temperature is toohot) and (target is normal) then command is low", engine));
         
